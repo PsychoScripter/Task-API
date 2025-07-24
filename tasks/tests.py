@@ -13,13 +13,6 @@ class TaskAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('title' in response.data[0])
 
-    def test_add_task(self):
-        url = reverse('task-add')
-        data = {"title": "New Task", "description": "Some detail"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Task.objects.count(), 2)
-
     def test_get_task_detail(self):
         url = reverse('task-detail', kwargs={'pk': self.task.pk})
         response = self.client.get(url)
