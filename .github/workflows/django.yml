@@ -1,13 +1,13 @@
-name: Django CI
+name: Django CI with Postgres
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build-test:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -17,7 +17,8 @@ jobs:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: pass
           POSTGRES_DB: taskdb
-        ports: ['5432:5432']
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -30,15 +31,13 @@ jobs:
       DB_PASSWORD: pass
       DB_HOST: localhost
       DB_PORT: 5432
-      SECRET_KEY: testsecret
-      DEBUG: True
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
@@ -47,14 +46,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Wait for Postgres
-      run: |
-        until pg_isready -h localhost -p 5432; do sleep 1; done
-
     - name: Run migrations
-      run: |
-        python manage.py migrate
+      run: python manage.py migrate
 
     - name: Run tests
-      run: |
-        python manage.py test
+      run: python manage.py test
